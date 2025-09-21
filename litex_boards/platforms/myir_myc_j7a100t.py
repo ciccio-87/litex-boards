@@ -170,6 +170,10 @@ _io = [
     ),
 
     # PCIe.
+    ("gtp_refclk", 0,
+        Subsignal("p", Pins("F6")),
+        Subsignal("n", Pins("E6"))
+    ),
     ("pcie_x1", 0,
         Subsignal("rst_n", Pins("R16"), IOStandard("LVCMOS33"), Misc("PULLUP=TRUE")),
         Subsignal("clk_p", Pins("F6")),
@@ -190,28 +194,24 @@ _io = [
     ),
 
     # SFP+
-    ("gtp_refclk", 0,
-        Subsignal("p", Pins("F6")),
-        Subsignal("n", Pins("E6"))
-    ),
     ("gtp_refclk", 1,
         Subsignal("p", Pins("F10")),
         Subsignal("n", Pins("E10"))
     ),
-    ("sfp", 0,
-        Subsignal("rxp", Pins("B6")),
-        Subsignal("rxn", Pins("A6")),
-        Subsignal("txp", Pins("B10")),
-        Subsignal("txn", Pins("A10")),
+    ("sfp", 0,  # SFP0 physical cage, the closer ont to the pcie connector
+        Subsignal("txp", Pins("B6")),
+        Subsignal("txn", Pins("A6")),
+        Subsignal("rxp", Pins("B10")),
+        Subsignal("rxn", Pins("A10")),
     ),
-    ("sfp", 1,
-        Subsignal("rxp", Pins("D7")),
-        Subsignal("rxn", Pins("C7")),
-        Subsignal("txp", Pins("D9")),
-        Subsignal("txn", Pins("C9")),
+    ("sfp", 1,  # mapped to SFP1 physical cage (the closer one to hdmi out)
+        Subsignal("txp", Pins("D7")),
+        Subsignal("txn", Pins("C7")),
+        Subsignal("rxp", Pins("D9")),
+        Subsignal("rxn", Pins("C9")),
     ),
 
-    # HDMI Out
+    # HDMI Out (Sii9022)
     ("hdmi_out", 0,
         Subsignal("clk",     Pins("J21")),
         Subsignal("de",      Pins("H19")),
@@ -227,7 +227,7 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
-    # HDMI In
+    # HDMI In (ADV7611)
     ("hdmi_in", 0,
         Subsignal("clk",     Pins("C19")),
         Subsignal("de",      Pins("C18")),
@@ -252,11 +252,9 @@ _connectors = []
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(Xilinx7SeriesPlatform):
-    default_clk_name   = "clk200"
-    default_clk_period = 1e9/200e6
 
     def __init__(self, toolchain="vivado"):
-        device = "xc7a100tfgg484-1"
+        device = "xc7a100tfgg484-2"
         Xilinx7SeriesPlatform.__init__(self, device, _io, _connectors, toolchain=toolchain)
         self.toolchain.bitstream_commands = \
             [
